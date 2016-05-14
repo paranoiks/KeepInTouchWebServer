@@ -27,7 +27,9 @@ function ModelGetUserInfo($username)
 		return null;
 	}	
 
-	return mysqli_fetch_assoc($result);
+	$userInfo = mysqli_fetch_assoc($result);
+
+	return $userInfo;
 }
 
 function ModelAddContact($userId, $params)
@@ -97,14 +99,57 @@ function ModelGetAllContacts($userId)
 
 	$result = mysqli_query($link, $query);	
 
-	mysqli_close($link);		
+	mysqli_close($link);	
 
-	return mysqli_fetch_assoc($result);
+	$contacts = array();
+	$i = 0;
+
+	while($row = mysqli_fetch_assoc($result))
+	{
+		$contacts[$i] = $row;
+		$i++;
+	}	
+
+	return $contacts;
 }
 
 function ModelAddContactNote($userId, $contactId, $note)
 {
-	
+	$link = Connect();
+
+	$tableName = "Notes_" . $userId;
+
+	$query = "INSERT INTO " . $tableName . " SET " .
+		"contact_id='" . $contactId . "', " .
+		"note='" . $note . "'";
+
+	mysqli_query($link, $query);
+
+	mysqli_close($link);
+}
+
+function ModelGetAllNotesForContact($userId, $contactId)
+{
+	$link = Connect();
+
+	$tableName = "Notes_" . $userId;
+
+	$query = "SELECT * FROM " . $tableName . " WHERE contact_id='" . $contactId . "'";
+
+	$result = mysqli_query($link, $query);
+
+	mysqli_close($link);
+
+	$notes = array();
+	$i = 0;
+
+	while($row = mysqli_fetch_assoc($result))
+	{
+		$notes[$i] = $row;
+		$i++;
+	}
+
+	return $notes;
 }
 
 ?>

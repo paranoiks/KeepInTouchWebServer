@@ -15,29 +15,36 @@ switch($action)
 		GetAllContacts();
 		break;
 	case "addContactNote":
+		AddContactNote();
+		break;
+	case "getAllNotesForContact":
+		GetAllNotesForContact();
 		break;
 }
 
+//Check if the supplied username and password correspond to an actual user in the database
 function CheckUser()
 {
 	$username = get_param('username');
 	$userPassword = get_param('password');	
 
+
 	$userInfo = ModelGetUserInfo($username);
 
 	if($userInfo == null)
 	{
-		return;
+		return null;
 	}	
 
 	if($userInfo['password'] != $userPassword)
 	{
-		return;
+		return null;
 	}
 
 	return $userInfo;
 }
 
+//add a new contact for the given user
 function AddContact()
 {
 	$userInfo = CheckUser();
@@ -52,6 +59,7 @@ function AddContact()
 	ModelAddContact($userInfo['id'], $params);
 }
 
+//edit the info for a contact for the given user
 function EditContact()
 {
 	$userInfo = CheckUser();
@@ -66,6 +74,7 @@ function EditContact()
 	ModelEditContact($userInfo['id'], $params);
 }
 
+//get all contacts for the given user
 function GetAllContacts()
 {
 	$userInfo = CheckUser();
@@ -76,6 +85,39 @@ function GetAllContacts()
 	}	
 
 	echo json_encode(ModelGetAllContacts($userInfo['id']));
+}
+
+//add a note for a certain contact
+function AddContactNote()
+{
+	$userInfo = CheckUser();
+
+	if($userInfo == null)
+	{
+		return;
+	}
+
+	$contactId = get_param('contact_id');
+	$note = get_param('note');
+
+	ModelAddContactNote($userInfo['id'], $contactId, $note);
+}
+
+//get all notes for a certain contact
+function GetAllNotesForContact()
+{
+	$userInfo = CheckUser();	
+
+	if($userInfo == null)
+	{
+		return;
+	}
+
+	$contactId = get_param('contact_id');
+
+	$notes = ModelGetAllNotesForContact($userInfo['id'], $contactId);
+
+	echo json_encode($notes);
 }
 
 function get_param($param)
